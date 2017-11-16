@@ -1,0 +1,106 @@
+---
+#   - apt_key:
+#       keyserver: keyserver.ubuntu.com
+#       id: EEA14886
+
+   - name: Añadir repositorio java 8
+     shell: add-apt-repository ppa:webupd8team/java
+
+   - apt_repository:
+       repo: deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main
+       state: present
+       filename: 'oracle_java'
+
+   - apt_key:
+       url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+       state: present
+
+   - apt_repository:
+       repo: deb https://artifacts.elastic.co/packages/5.x/apt stable main
+       state: present
+       filename: 'elastic'
+
+   - name: Accept Java 8 License
+     shell: echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+
+   - name: Instalacion de oracle java 8 y filebeat
+     apt:
+       name: "{{ item }}"
+       update_cache: yes
+       allow_unauthenticated: yes
+     with_items:
+       - oracle-java8-installer
+       - oracle-java8-set-default
+       - filebeat
+
+   - name: Copiar fichero config filebeat
+     copy:
+       src: /etc/ansible/ficheros/filebeat/filebeat.yml.linux
+       dest: /etc/filebeat/filebeat.yml
+
+   - name: Copiar fichero config filebeat
+     copy:
+       src: /etc/ansible/ficheros/filebeat/filebeat_linux_auth.yml
+       dest: /etc/filebeat/filebeat_linux_auth.yml
+
+   - name: Servicio filebeat linux auth
+     copy:
+       src: /lib/systemd/system/filebeat.service
+       dest: /lib/systemd/system/filebeat_linux_auth.service
+       remote_src: yes
+
+   - name: Cambiar servicio filebeat linux auth
+     lineinfile:
+       path: /lib/systemd/system/filebeat_linux_auth.service
+       regexp: 'ExecStart=/usr/share/filebeat/bin/filebeat -c /etc/filebeat/filebeat.yml -path.home /usr/share/filebeat -path.config /etc/filebeat -path.data /var/lib/filebeat -path.logs /var/log/filebeat'
+       line: 'ExecStart=/usr/share/filebeat/bin/filebeat -c /etc/filebeat/filebeat_linux_auth.yml -path.home /usr/share/filebeat -path.config /etc/filebeat -path.data /var/lib/filebeat -path.logs /var/log/filebeat_linux_auth'
+
+   - name: Reload systemd
+     shell: systemctl daemon-reload
+
+   - name: Reiniciar servicio filebeat
+     service:
+       name: filebeat
+       state: restarted
+       enabled: yes
+
+   - name: Reiniciar servicio filebeat_linux_auth
+     service:
+       name: filebeat_linux_auth
+       state: restarted
+       enabled: yes
+
+#   - name: Configuracion filebeat (comentar output elasticsearch)
+#     replace:
+#       path: /etc/filebeat/filebeat.yml
+#       backup: yes
+#       regexp: '(output.elasticsearch:)'
+#       replace: '#\1'
+
+#   - name: Configuracion filebeat (comentar hosts elasticsearch)
+#     replace:
+#       path: /etc/filebeat/filebeat.yml
+#       backup: yes
+#       regexp: '(hosts: \["localhost:9200"\])'
+#       replace: '#\1'
+
+#   - name: Configuracion filebeat (descomentar output logstash)
+#     replace:
+#       path: /etc/filebeat/filebeat.yml
+#       backup: yes
+#       regexp: '#(output.logstash:)'
+#       replace: '\1'
+
+#   - name: Configuracion filebeat (descomentar host logstash)
+#     replace:
+#       path: /etc/filebeat/filebeat.yml
+#       backup: yes
+#       regexp: '#(hosts: \["localhost:5044"\])'
+#       replace: '\1'
+
+#   - name: Configuracion filebeat (cambiar ip a logstash)
+#     replace:
+#       path: /etc/filebeat/filebeat.yml
+#       backup: yes
+#       regexp: 'hosts: \["localhost:5044"\]'
+#       replace: 'hosts: ["10.191.29.207:5044"]'

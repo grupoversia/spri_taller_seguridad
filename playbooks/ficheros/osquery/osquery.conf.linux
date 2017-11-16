@@ -1,0 +1,17 @@
+{
+  "options": {
+  },
+
+  "schedule": {
+  },
+
+  "decorators": {
+    "load": [
+      "SELECT uuid AS host_uuid FROM system_info;",
+      "SELECT user AS username FROM logged_in_users ORDER BY time DESC LIMIT 1;"
+    ]
+  },
+
+  "packs": {
+  }
+}

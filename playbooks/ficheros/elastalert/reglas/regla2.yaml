@@ -1,0 +1,25 @@
+# Alert when a login event is detected for user "admin" never before seen IP
+# In this example, "login" logs contain which user has logged in from what IP
+es_host: 192.168.1.124
+es_port: 9200
+name: Regla - Conexion con usuario Administrador desde ip nueva (ultimos 7 dias)
+type: new_term
+index: osquery-*
+fields:
+ - "EventData.IpAddress"
+terms_window_size:
+  days: 7
+filter:
+- term:
+    columns.eventid: "4624"
+- term:
+    EventData.TargetUserName: "Administrador"
+alert:
+- "email"
+smtp_host: localhost
+email_from_field: "elastalert"
+email_add_domain: "@grupoversia.com"
+email_reply_to: "elastalert@grupoversia.com"
+from_addr: "elastalert@grupoversia.com"
+email:
+- "root@localhost"

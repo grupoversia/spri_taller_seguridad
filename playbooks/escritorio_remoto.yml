@@ -1,0 +1,8 @@
+---
+
+  - win_feature:
+      name: RDS-RD-Server
+      include_management_tools: true
+      include_sub_features: true
+      restart: true
+      state: present

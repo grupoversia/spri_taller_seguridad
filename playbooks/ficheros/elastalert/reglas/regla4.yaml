@@ -1,0 +1,31 @@
+es_host: 192.168.1.124
+es_port: 9200
+name: Regla - 2 conexiones del mismo usuario en distintos puestos en 5 minutos.
+index: osquery-*
+filter:
+  - term:
+      columns.eventid: "4624"
+#  - term:
+#      EventData.LogonProcessName: "User32"
+type: cardinality
+cardinality_field: EventData.WorkstationName
+max_cardinality: 1
+timeframe:
+  minutes: 5
+query_key: EventData.TargetUserName
+
+alert:
+- "email"
+alert_subject: "2 conexiones del usuario {0} en distintos puestos({1}) en 5 minutos."
+alert_subject_args:
+- EventData.TargetUserName
+- EventData.WorkstationName
+- EventData.IpAddress
+- "@timestamp"
+smtp_host: localhost
+email_from_field: "elastalert"
+email_add_domain: "@grupoversia.com"
+email_reply_to: "elastalert@grupoversia.com"
+from_addr: "elastalert@grupoversia.com"
+email:
+- "root@localhost"

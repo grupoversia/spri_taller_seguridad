@@ -1,0 +1,252 @@
+---
+
+#   - apt_key:
+#       keyserver: keyserver.ubuntu.com
+#       id: 1484120AC4E9F8A1A577AEEE97A80C63C9D8B80B
+
+   - apt_repository:
+       repo: deb [arch=amd64] https://osquery-packages.s3.amazonaws.com/xenial xenial main
+       state: present
+       filename: 'osquery'
+
+#   - apt_key:
+#       url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
+#       state: present
+
+   - apt_repository:
+       repo: deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main
+       state: present
+       filename: 'postgresql'
+
+   - name: Instalacion de postgresql y redis
+     apt:
+       name: "{{ item }}"
+       update_cache: yes
+       allow_unauthenticated: yes
+     with_items:
+       - postgresql-9.6
+       - postgresql-server-dev-9.6
+       - redis-server
+       - python-pip
+       - osquery
+       - wget
+       - ca-certificates
+       - python-dev
+       - python-pytest
+       - python-webtest
+       - python-cffi
+       - libffi-dev
+       - git
+       - nodejs
+       - nodejs-legacy
+       - npm
+       - nginx
+       - python-pexpect
+
+   - name: Upgrade pip
+     shell: pip install --upgrade pip
+
+   - name: Creacion directorio /opt/doorman
+     file:
+       dest: /opt/doorman
+       state: directory
+
+   - name: git clone doorman
+     git:
+       repo: https://github.com/mwielgoszewski/doorman.git
+       dest: /opt/doorman
+
+   - name: Permisos /opt/doorman
+     file:
+       path: /opt/doorman
+       state: directory
+       owner: 
+       group: 
+       recurse: yes
+
+   - name: Copiar fichero settings.py doorman
+     copy:
+       src: /etc/ansible/ficheros/doorman/settings.py
+       dest: /opt/doorman/doorman/settings.py
+       owner: postgres
+       group: postgres
+       mode: 0644
+
+#   - name: Cambiar autenticacion doorman (settings.py)
+#     replace:
+#       path: /opt/doorman/doorman/settings.py
+#       regexp: 'DOORMAN_AUTH_METHOD = None'
+#       replace: "DOORMAN_AUTH_METHOD = 'doorman'"
+#       backup: yes
+#     when: doorman_auth == true
+#
+#   - name: Cambiar enroll tags doorman (settings.py)
+#     blockinfile:
+#       path: /opt/doorman/doorman/settings.py
+#       block: |
+#             DOORMAN_ENROLL_SECRET_TAG_DELIMITER = ':'
+#             DOORMAN_ENROLL_DEFAULT_TAGS = [
+#             'baseline'  
+#             ]
+#       backup: yes
+#     when: doorman_tags == true
+
+   - name: Requisitos pip
+     shell: pip install -r /opt/doorman/requirements/prod.txt
+
+   - name: Copiar fichero config postgres
+     copy:
+       src: /opt/doorman/tools/pg_hba.conf
+       dest: /etc/postgresql/9.6/main/pg_hba.conf
+       remote_src: yes
+
+   - name: Reniciar postgres
+     service:
+       name: postgresql
+       state: restarted
+
+   - name: Creacion directorio /home/postgres/doormandb
+     file:
+       dest: /home/postgres/doormandb
+       state: directory
+       owner: postgres
+       group: postgres
+
+   - name: postgresql initdb
+     shell: /usr/lib/postgresql/9.6/bin/initdb /home/postgres/doormandb
+     become: true
+     become_user: postgres
+
+   - name: postgresql start doorman
+     shell: /usr/lib/postgresql/9.6/bin/pg_ctl -D /home/postgres/doormandb -l /home/postgres/doormandb/pg.log -o -p5432 start
+     become: true
+     become_user: postgres
+
+   - name: postgresql createdb doorman
+     shell: /usr/lib/postgresql/9.6/bin/createdb -h localhost -p 5432 doorman
+     become: true
+     become_user: postgres
+
+   - name: python manage.py upgrade
+     shell: python manage.py db upgrade
+     args:
+       chdir: /opt/doorman
+     become: true
+     become_user: postgres
+
+   - name:
+     shell: openssl genrsa -out /opt/doorman/private.key 2048
+     
+   - name:
+     shell: openssl req -x509 -new -nodes -key /opt/doorman/private.key -days 365 -out /opt/doorman/certificate.crt -subj /C=US/O=doorman/CN={{ ansible_default_ipv4.address }}
+
+   - name: npm install bower less
+     shell: npm install -g "{{ item }}"
+     with_items:
+       - bower
+       - less
+    
+   - name: bower allow root
+     shell: bower install --allow-root
+     args:
+       chdir: /opt/doorman
+
+   - name: Copiar fichero doorman_celery.service
+     copy:
+       src: /etc/ansible/ficheros/doorman/doorman_celery.service
+       dest: /lib/systemd/system/doorman_celery.service
+
+   - name: Reload systemctl
+     shell: systemctl daemon-reload
+
+   - name: Generar usuario admin para doorman_auth
+     expect:
+       command: /usr/bin/python manage.py adduser "{{ usuario_doorman_auth }}"
+       responses:
+         (?i)password: "{{ usuario_doorman_auth_pass }}"
+     become: true
+     become_user: postgres
+     args:
+       chdir: /opt/doorman
+     when: doorman_auth == true
+
+   - name: Arrancar celery worker
+     service:
+       name: doorman_celery
+       state: started
+       enabled: yes
+
+#     shell: ( ( nohup celery worker -A doorman.worker:celery -l INFO -f /tmp/celery.log 1>/dev/null 2>&1 ) & )
+#     args:
+#       chdir: /opt/doorman
+#     become: true
+#     become_user: postgres
+#     tags:
+#       - celery
+
+   - name: permisos /opt/doorman
+     file:
+       path: /opt/doorman
+       state: directory
+       owner: postgres
+       group: postgres
+       recurse: yes
+
+   - name: Creacion directorio /opt/doorman/log
+     file:
+       dest: /opt/doorman/log
+       state: directory
+       owner: postgres
+       group: postgres
+
+   - name: Copiar fichero doorman.service
+     copy:
+       src: /etc/ansible/ficheros/doorman/doorman.service
+       dest: /lib/systemd/system/doorman.service
+
+   - name: Reload systemctl
+     shell: systemctl daemon-reload
+
+   - name: Arrancar Doorman
+     service:
+       name: doorman
+       state: started
+       enabled: yes
+
+#   - name: Arranque de doorman
+#     shell: ( ( nohup python manage.py ssl >> /opt/doorman/doorman.log 1>/dev/null 2>&1 ) & )
+#     args:
+#       chdir: /opt/doorman
+#     become: true
+#     become_user: postgres
+#     tags:
+#       - doorman
+
+   - name: copiar fichero nginx.conf
+     copy:
+       src: /etc/ansible/ficheros/doorman/nginx.conf
+       dest: /etc/nginx/sites-available/default
+
+   - name: Cambio fichero config nginx
+     replace:
+       path: /etc/nginx/sites-available/default
+       regexp: 'listen 80;' 
+       replace: 'listen 443;'
+     tags:
+       - listen
+
+   - name: Añadir certificado a nginx
+     blockinfile:
+       path: /etc/nginx/sites-available/default
+       block: |
+           ssl on;
+           ssl_certificate /opt/doorman/certificate.crt;
+           ssl_certificate_key /opt/doorman/private.key;
+       insertafter: "listen 443;"
+     tags:
+       - ssl
+
+   - name: Reniciar nginx
+     service:
+       name: nginx
+       state: restarted

@@ -1,0 +1,17 @@
+[Unit]
+Description=DOORMAN CELERY WORKERS
+After=network.target
+Requires=postgresql.service
+Requires= redis.service
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+User=postgres
+WorkingDirectory=/opt/doorman
+PIDFile=/var/run/doorman_celery.pid
+ExecStart=/usr/local/bin/celery worker -A doorman.worker:celery -l INFO -f /tmp/celery.log
+TimeoutSec=300
+
+[Install]
+WantedBy=default.target

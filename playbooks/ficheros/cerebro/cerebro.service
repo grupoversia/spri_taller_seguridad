@@ -1,0 +1,12 @@
+[Unit]
+Description=Cerebro
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/share/cerebro/bin/cerebro -Dorg.sqlite.tmpdir=/usr/share/cerebro/temp
+Restart=always
+WorkingDirectory=/
+
+[Install]
+WantedBy=multi-user.target

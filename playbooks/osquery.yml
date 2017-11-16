@@ -1,0 +1,55 @@
+---
+
+#   - apt_key:
+#       keyserver: keyserver.ubuntu.com
+#       id: 1484120AC4E9F8A1A577AEEE97A80C63C9D8B80B
+
+   - apt_repository:
+       repo: deb [arch=amd64] https://osquery-packages.s3.amazonaws.com/xenial xenial main
+       state: present
+       filename: 'osquery'
+
+   - name: Instalacion de osqueryd
+     apt:
+       name: osquery
+       update_cache: yes
+       allow_unauthenticated: true
+
+   - name: Copiar fichero de conf osquery
+     copy:
+       src: /etc/ansible/ficheros/osquery/osquery.conf.linux
+       dest: /etc/osquery/osquery.conf
+
+   - name: Copiar fichero flags osqueryd linux
+     copy:
+       src: /etc/ansible/ficheros/osquery/osquery.flags.linux
+       dest: /etc/osquery/osquery.flags
+
+   - name: Cambiar fichero osquery.flags para que apunte a doorman
+     replace:
+       path: /etc/osquery/osquery.flags
+       regexp: '--tls_hostname=localhost:5000'
+       replace: '--tls_hostname={{ DOORMAN_IP }}'
+
+   - name: Cambiar fichero osquery.flags (enroll_secret_env)
+     lineinfile:
+       path: /etc/osquery/osquery.flags
+       regexp: '^--enroll_secret_env='
+       state: absent
+
+   - name: Crear fichero secret
+     lineinfile:
+       path: /etc/osquery/secret.txt
+       create: yes
+       line: 'secret/baseline/linux'
+       state: present
+
+   - name: Copiar certificado doorman a local
+     copy:
+       src: /etc/ansible/ficheros/doorman/certificate.crt
+       dest: /etc/osquery/certificate.crt
+
+   - name: start osqueryd
+     service:
+       name: osqueryd
+       state: restarted

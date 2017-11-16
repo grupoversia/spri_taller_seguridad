@@ -1,0 +1,128 @@
+---
+
+   - name: Instalacion de python-pip
+     apt:
+       name: "{{ item }}"
+       update_cache: yes
+       allow_unauthenticated: yes
+     with_items:
+       - python-pip
+       - mailutils
+
+   - name: Upgrade pip
+     shell: pip install --upgrade pip
+
+   - name: Creacion directorio /opt/elastalert
+     file:
+       dest: /opt/elastalert
+       state: directory
+
+   - name: git clone elastalert
+     git:
+       repo: https://github.com/Yelp/elastalert.git
+       dest: /opt/elastalert
+
+   - name: Requisitos pip
+     shell: pip install -r /opt/elastalert/requirements.txt
+
+   - name: Requisitos pip
+     shell: pip install "elasticsearch>=5.0.0"
+
+   - name:
+     copy:
+       src: /opt/elastalert/config.yaml.example
+       dest: /opt/elastalert/config.yaml
+       remote_src: yes
+
+   - name: Configuracion elastalert
+     lineinfile:
+       path: /opt/elastalert/config.yaml
+       regexp: 'es_host: elasticsearch.example.com'
+       line: 'es_host: 192.168.1.124'
+       backup: yes
+
+   - name: Creacion directorio /opt/elastalert/reglas
+     file:
+       dest: /opt/elastalert/reglas
+       state: directory
+
+   - name: Copiar ficheros de reglas
+     copy:
+       src: /etc/ansible/ficheros/elastalert/reglas/
+       dest: /opt/elastalert/reglas/
+
+   - name: Configuracion directorio de reglas elastalert
+     lineinfile:
+       path: /opt/elastalert/config.yaml
+       regexp: 'rules_folder: example_rules'
+       line: 'rules_folder: reglas'
+       backup: yes
+
+   - shell: dpkg -l|grep -i kibana|awk '{ print $3 }'
+     register: kibana_version
+
+   - name: Crear index elastalert1
+     uri:
+       url: http://{{ ansible_default_ipv4.address }}:9200/.kibana/index-pattern/{{ nombre_indice_elastalert1 }}
+       body:
+         title: "{{ nombre_indice_elastalert1 }}"
+         timeFieldName: "@timestamp" 
+       body_format: json
+       method: PUT
+       headers:
+         Content-Type: "application/json"
+       status_code: 201
+     when: crear_indice_elastalert1 == true
+
+   - name: Crear index elastalert2
+     uri:
+       url: http://{{ ansible_default_ipv4.address }}:9200/.kibana/index-pattern/{{ nombre_indice_elastalert2 }}
+       body:
+         title: "{{ nombre_indice_elastalert2 }}"
+         timeFieldName: "@timestamp"
+       body_format: json
+       method: PUT
+       headers:
+         Content-Type: "application/json"
+       status_code: 201
+     when: crear_indice_elastalert2 == true
+
+   - name: Crear index elastalert3
+     uri:
+       url: http://{{ ansible_default_ipv4.address }}:9200/.kibana/index-pattern/{{ nombre_indice_elastalert3 }}
+       body:
+         title: "{{ nombre_indice_elastalert3 }}"
+         timeFieldName: "@timestamp"
+       body_format: json
+       method: PUT
+       headers:
+         Content-Type: "application/json"
+       status_code: 201
+     when: crear_indice_elastalert3 == true
+
+   - name: Crear index elastalert4
+     uri:
+       url: http://{{ ansible_default_ipv4.address }}:9200/.kibana/index-pattern/{{ nombre_indice_elastalert4 }}
+       body:
+         title: "{{ nombre_indice_elastalert4 }}"
+         timeFieldName: "@timestamp"
+       body_format: json
+       method: PUT
+       headers:
+         Content-Type: "application/json"
+       status_code: 201
+     when: crear_indice_elastalert4 == true
+
+   - name: Copiar fichero elastalert.service
+     copy:
+       src: /etc/ansible/ficheros/elastalert/elastalert.service
+       dest: /lib/systemd/system/elastalert.service
+
+   - name: Reload systemctl
+     shell: systemctl daemon-reload
+
+   - name: Habilitar servicio elastalert
+     service:
+       name: elastalert
+       state: started
+       enabled: yes

@@ -1,0 +1,26 @@
+es_host: 192.168.1.124
+es_port: 9200
+name: Regla - Mas de 3 eventos de login fallido en 5 minutos por usuario.
+index: osquery-*
+filter:
+  - term:
+      columns.eventid: "4625"
+type: frequency
+num_events: 3
+timeframe:
+  minutes: 5
+query_key: EventData.TargetUserName
+
+alert:
+- "email"
+alert_subject: "3 eventos de login fallido en 5 minutos para usuario {0} a las {1}"
+alert_subject_args:
+- EventData.TargetUserName
+- "@timestamp"
+smtp_host: localhost
+email_from_field: "elastalert"
+email_add_domain: "@grupoversia.com"
+email_reply_to: "elastalert@grupoversia.com"
+from_addr: "elastalert@grupoversia.com"
+email:
+- "root@localhost"

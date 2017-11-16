@@ -1,0 +1,24 @@
+es_host: 192.168.1.124
+es_port: 9200
+name: Regla - 20 eventos de login fallido (todos los usuarios) en 15 minutos.
+type: frequency
+index: osquery-*
+num_events: 20
+timeframe:
+  minutes: 15
+filter:
+- term:
+    columns.eventid: "4625"
+alert:
+- "email"
+alert_subject: "20 eventos de login fallido( {0} ) ocurridos a las {1}"
+alert_subject_args:
+- columns.eventid
+- "@timestamp"
+smtp_host: localhost
+email_from_field: "elastalert"
+email_add_domain: "@grupoversia.com"
+email_reply_to: "elastalert@grupoversia.com"
+from_addr: "elastalert@grupoversia.com"
+email:
+- "root@localhost"

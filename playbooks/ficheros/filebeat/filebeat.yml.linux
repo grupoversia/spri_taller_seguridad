@@ -1,0 +1,11 @@
+filebeat.prospectors:
+
+- input_type: log
+  paths:
+    - /var/log/osquery/osqueryd.results.log
+  document_type: osquery
+  fields:
+    logtype: osquery
+#----------------------------- Logstash output --------------------------------
+output.logstash:
+  hosts: ["192.168.1.124:5044"]

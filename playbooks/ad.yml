@@ -1,0 +1,14 @@
+---
+
+  - win_feature:
+      name: AD-Domain-Services
+      include_management_tools: true
+      include_sub_features: true
+      restart: true
+      state: present
+
+  - win_domain:
+      dns_domain_name: "{{ dominio }}"
+      safe_mode_password: "{{ contrasena }}"
+
+  - win_reboot:

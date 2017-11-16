@@ -1,0 +1,30 @@
+---
+    - name: Crear usuarios de dominio
+      win_domain_user:
+        name: "{{ item.nombre_usuario }}"
+        firstname: "{{ item.descripcion_usuario }}"
+        password: "{{ item.contrasena_usuario }}"
+        state: present
+        groups:
+          - "{{ item.grupo_usuario }}"
+      with_items:
+        - { nombre_usuario: 'usuario1', contrasena_usuario: 'p@ssusuario-1', descripcion_usuario: 'usuario 1', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario2', contrasena_usuario: 'p@ssusuario-2', descripcion_usuario: 'usuario 2', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario3', contrasena_usuario: 'p@ssusuario-3', descripcion_usuario: 'usuario 3', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario4', contrasena_usuario: 'p@ssusuario-4', descripcion_usuario: 'usuario 4', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario5', contrasena_usuario: 'p@ssusuario-5', descripcion_usuario: 'usuario 5', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario6', contrasena_usuario: 'p@ssusuario-6', descripcion_usuario: 'usuario 6', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario7', contrasena_usuario: 'p@ssusuario-7', descripcion_usuario: 'usuario 7', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario8', contrasena_usuario: 'p@ssusuario-8', descripcion_usuario: 'usuario 8', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario9', contrasena_usuario: 'p@ssusuario-9', descripcion_usuario: 'usuario 9', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario10', contrasena_usuario: 'p@ssusuario-10', descripcion_usuario: 'usuario 10', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario11', contrasena_usuario: 'p@ssusuario-11', descripcion_usuario: 'usuario 11', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario12', contrasena_usuario: 'p@ssusuario-12', descripcion_usuario: 'usuario 12', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario13', contrasena_usuario: 'p@ssusuario-13', descripcion_usuario: 'usuario 13', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario14', contrasena_usuario: 'p@ssusuario-14', descripcion_usuario: 'usuario 14', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario15', contrasena_usuario: 'p@ssusuario-15', descripcion_usuario: 'usuario 15', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario16', contrasena_usuario: 'p@ssusuario-16', descripcion_usuario: 'usuario 16', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario17', contrasena_usuario: 'p@ssusuario-17', descripcion_usuario: 'usuario 17', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario18', contrasena_usuario: 'p@ssusuario-18', descripcion_usuario: 'usuario 18', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario19', contrasena_usuario: 'p@ssusuario-19', descripcion_usuario: 'usuario 19', grupo_usuario: 'Admins. del dominio' }
+        - { nombre_usuario: 'usuario20', contrasena_usuario: 'p@ssusuario-20', descripcion_usuario: 'usuario 20', grupo_usuario: 'Admins. del dominio' }

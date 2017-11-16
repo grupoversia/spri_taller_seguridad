@@ -1,0 +1,52 @@
+---
+    - name: Crear directorio /etc/sec
+      file:
+        dest: /etc/sec
+        state: directory
+
+    - name: Descomprimir sec_lab-spri-elk.tar.gz
+      unarchive:
+        src: /etc/ansible/ficheros/sec/sec_lab-spri-elk.tar.gz
+        dest: /etc/sec
+
+    - shell: dpkg -l|grep -i kibana|awk '{ print $3 }'
+      register: kibana_version
+
+    - name: Crear index sec
+      uri:
+        url: http://{{ ansible_default_ipv4.address }}:9200/.kibana/index-pattern/{{ nombre_indice_sec }}
+        body:
+          title: "{{ nombre_indice_sec }}"
+          timeFieldName: "@timestamp"
+        body_format: json
+        method: PUT
+        headers:
+          Content-Type: "application/json"
+        status_code: 201
+      when: crear_indice_sec == true
+
+    - name: Longitud
+      uri:
+        url: http://{{ ansible_default_ipv4.address }}:9200/_mapping/{{ nombre_indice_sec }}
+        body:
+          properties:
+            Login_Sucessfull_trace:
+              type: "text"
+              fields:
+                keyword:
+                  type: "keyword"
+                  ignore_above: "600"
+            Login_failed_trace:
+              type: "text"
+              fields:
+                keyword:
+                  type: "keyword"
+                  ignore_above: "600"
+        body_format: json
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        status_code: 201,200
+
+    - name: Arrancar sec
+      shell: ( ( nohup /etc/sec/conf/INTEL-001_sec_start.sh 2>&1 ) & )

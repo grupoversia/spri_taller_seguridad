@@ -1,0 +1,25 @@
+---
+    - name: Descargar zip instalador filebeat
+      win_get_url: 
+        url: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-5.5.2-windows-x86_64.zip
+        dest: C:\Windows\Temp\filebeat-5.5.2-windows-x86_64.zip
+
+    - name: Descomprimir instalador
+      win_unzip:
+        src: C:\Windows\Temp\filebeat-5.5.2-windows-x86_64.zip
+        dest: C:\Program Files
+        creates: C:\Program Files\filebeat-5.5.2-windows-x86_64
+
+    - name: Copiar fichero configuracion filebeat
+      win_copy:
+        src: /etc/ansible/ficheros/filebeat/filebeat.yml.windows
+        dest: C:\Program Files\filebeat-5.5.2-windows-x86_64\filebeat.yml
+        force: yes
+
+#    - name: Ejecutar como servicio
+#      win_service:
+#        name: Filebeat
+#        path: 'C:\Program Files\filebeat-5.5.2-windows-x86_64\filebeat.exe -c "C:\Program Files\filebeat-5.5.2-windows-x86_64\filebeat.yml" -path.data "C:\Program Data\filebeat"'
+#        display_name: Filebeat
+#        description: Filebeat
+#        state: started

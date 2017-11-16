@@ -1,0 +1,33 @@
+---
+  - name: Crear usuarios kali
+    user:
+      name: "{{ item.nombre }}"
+      password: "{{ item.contrasena }}"
+      shell: /bin/bash
+      createhome: yes
+      home: /home/{{ item.nombre }}
+      generate_ssh_key: yes
+      ssh_key_bits: 2048
+      ssh_key_file: .ssh/id_rsa
+      group: root
+    with_items:
+      - { nombre: 'user1', contrasena: '$6$Ybc6lu1./xC5.7F$RwM7UA6ykzoy5Wkq2pM9NgEzpm/vpCYI6C01NJcNjXeW7w71Z22nql2/CaxY5sFxouo2o/53/FS.AUVpxmg49.'}
+      - { nombre: 'user2', contrasena: '$6$f1Qdjede0J6y$Eu3mdB06Fn8KUwJstzTFxb5OVF2TOD2u6hv71DbmsfoiPlIBV56YkYiTwQ7FHk.s0u/03RSDbFxJwz1PGuuYk0'}
+      - { nombre: 'user3', contrasena: '$6$5jk2VXQO$YW0vpaKSe9ToMWWTBKjZG5OjiM/6LYxZT9/w3fO22ZJuDrv7ioE3TxoO7KF8BoGW2M/c7/cZzyl1rvD9LDDHw/'}
+      - { nombre: 'user4', contrasena: '$6$T8l6jlZObgs9$IWd4n1Mxtt.8Bq.76nucO8PzUdbc4WKP84AuryDsp7.3qnezpO3tIr.JMovFHImYGJuqK0IBxZ4DIywHfsKzY.'}
+      - { nombre: 'user5', contrasena: '$6$00rHyBroNcaBm4N$xadY.tYGFGe86Km.V468YwjDiAdAW54ys4.3iM.aK9UtOJgn7Pzpl11qJZfsJgChBf3BQq4kcHzavFvA1eaOb.'}
+      - { nombre: 'user6', contrasena: '$6$0W.IG.Kl$itoEgNDmoZ.dcin2c4YMMjCl/.Ayh85K3FM74cXVydxVJpIkm0VZyUDCC3LzWEGMPoljfmUsbLOXVDdJ5MYw91'}
+      - { nombre: 'user7', contrasena: '$6$yZm6b03p$G5JuQUH7NUT7RkXCb8y4o/rNVMBnrszOuJwWbtiWbcPXyS8d/EUNaULyjXbAGYDuJTOTpZefrbzMRAr6n1KGU/'}
+      - { nombre: 'user8', contrasena: '$6$mI.DDTj4gy5L93ub$7QHfqy/D0ltoEWcA/2W/vJT61hp4Z9H7B777c3ckkArTDTfhkLOCzAM8CL4VBp3jY.9pReEuQq.aoZCNUXrRz0'}
+      - { nombre: 'user9', contrasena: '$6$UXfzGaoo$ruqUHvMVBZKzO/cSL.PMQqWpypaJREwX6sxnqblxklAjzEk1MghvHKaOPsozEDHP38k3A3MmWF416tLdBU1vG/'}
+      - { nombre: 'user10', contrasena: '$6$d2IMNdMXvFULd$fKhbdZ7d9.DNni.AOZbyzZyHLWEKL1P1FjcMOhU.ebNV5Ms94QHD35nAL34KKx6X.FtmBafgZg.9I4pS/XPXn.'}
+      - { nombre: 'user11', contrasena: '$6$6YdF0.pmd$XIOkAHXPMz7Z5J5NNW0H9oVezIw9BQol6TRFuWbTbh0czDWc.vma3X5C.GG5Ey3JsccSQlqhNyaqL7n1ec/fh.'}
+      - { nombre: 'user12', contrasena: '$6$a8bwGpdjI$wIjCWsux9W1ojiBRfJlNxzK3INjWBWclhqiSMM9BDuXdmCKbH8zF9P2l8228Ipu1V9DAFaCDLwv7tb2Uva1rL.'}
+      - { nombre: 'user13', contrasena: '$6$gvMHeuB8JjEg$mc8o2bON1w4BUimK2q8ZwEiG6flh97sCF0eRiesqEUk293uj7daV2hJSmRZiWBacpq4/Ht6.ZpPcWBa6cIyh10'}
+      - { nombre: 'user14', contrasena: '$6$SDUQc8PvPOp3cq0$/7K09EOrXCnOh.cg/wpF.aWlLNsXfstbOM9i9k04HS4qcfpeFh97eLjHpLAAR16X9CZQkrht9v/ToZ2Jm6HlO/'}
+      - { nombre: 'user15', contrasena: '$6$w8pA.caNabp/$wRFKAjWDlvWZRXVjCznWq.Bp.G7BL5N5um0wM4BcW6z2zIHJQ7YbS0e6nqoYxma.aKAIL6KkXCGcUQD/aeshj1'}
+      - { nombre: 'user16', contrasena: '$6$vhKLkT.1MzB$/cBXl3JsClKuJeYo7GII5ToUPo.EVF.LGAweS5vwvD4Xa8bSdHkIpnBP2HsD6Xb38l9dBaSg8.NxqWXy12GCX0'}
+      - { nombre: 'user17', contrasena: '$6$csZhPougm0$XmCRikREzedpqH86gd.SnfecKWQaUGiZNE8nTFqqxNh7t3NBvHRdpeoGzr6sWBY00II/7xcmEd83C1jR.NLiD0'}
+      - { nombre: 'user18', contrasena: '$6$RrwZ.z7A7np05EHw$Wxmdl0LImAFYrAc6vMllNUmBGiuKBSs.9u4Rke4596bdAoDqy4k.H/.yK.mvGxP6SYK5bEZ0V8DuSfBCwB8Fm/'}
+      - { nombre: 'user19', contrasena: '$6$uO4ZUhBiMD03$cclK.dbc9FWKic8nCj1Fvicq4HtWbcafhZMnCMp0PibSwf/PejSzlvSXZ5jZiYFxNEGS7PHQ5my1q8TvkiKQL1'}
+      - { nombre: 'user20', contrasena: '$6$LZZhtocA9/$dzXAq3tsxFdC8u7ALuF8xnt1w/E3BEuQEeT4lda/EVilpp3Vr5f46E4aEvmHUGq0w8eHc3Fl2fbQdXGqHq43v1'}

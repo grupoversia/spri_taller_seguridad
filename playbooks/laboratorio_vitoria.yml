@@ -1,0 +1,110 @@
+---
+- hosts: LAB_SPRI_DOORMAN
+  vars:
+    DOORMAN_IP: 192.168.1.125
+    doorman_auth: true
+    doorman_tags: true
+    usuario_doorman_auth: admin
+    usuario_doorman_auth_pass: spri
+  tasks:
+  - name: Update all packages to the latest version
+    apt:
+      upgrade: dist
+  - include: /etc/ansible/doorman.yml
+
+  - fetch:
+      src: /opt/doorman/certificate.crt
+      dest: /etc/ansible/ficheros/doorman/certificate.crt
+      flat: yes
+
+  - include: /etc/ansible/osquery.yml
+  - include: /etc/ansible/filebeat_linux.yml
+
+- hosts: LAB_SPRI_ELK
+  vars:
+    cluster_name: LABORATORIO
+    instalar_metricbeat: false
+    crear_indice: true
+    crear_indice_sec: true
+    crear_indice_elastalert1: true
+    crear_indice_elastalert2: true
+    crear_indice_elastalert3: true
+    crear_indice_elastalert4: true
+    nombre_indice: osquery-*
+    nombre_indice_sec: sec_alerts*
+    nombre_indice_elastalert1: elastalert_status
+    nombre_indice_elastalert2: elastalert
+    nombre_indice_elastalert3: elastalert_error
+    nombre_indice_elastalert4: silence
+    campo_tiempo: timestamp
+    DOORMAN_IP: 192.168.1.125
+
+  tasks:
+  - name: Update all packages to the latest version
+    apt:
+      upgrade: dist
+  - include: /etc/ansible/elastic.yml
+  - include: /etc/ansible/filebeat_linux.yml
+  - include: /etc/ansible/osquery.yml
+  - include: /etc/ansible/sec.yml
+  - include: /etc/ansible/elastalert.yml
+  - include: /etc/ansible/cerebro.yml
+
+- hosts: LAB_SPRI_W2012_AD
+  vars:
+    dominio: ENPRESADIGITALA.VERSIA
+    contrasena: spri
+  tasks:
+  - include: /etc/ansible/sincro_hora.yml
+  - include: /etc/ansible/escritorio_remoto.yml
+  - wait_for_connection:
+      delay: 60
+      timeout: 300
+  - include: /etc/ansible/ad.yml
+  - pause:
+      seconds: 30
+  - include: /etc/ansible/usuarios_dominio.yml
+  - include: /etc/ansible/vaciar_eventos_seguridad.yml
+  - include: /etc/ansible/osquery_win.yml
+  - include: /etc/ansible/filebeat_win.yml
+
+- hosts: LAB_SPRI_W10
+  vars:
+    dominio: ENPRESADIGITALA.VERSIA
+    nombre_maquina: LABSPRIW10
+    contrasena: spri
+  serial: 1
+  remote_user: versia 
+  tasks:
+  - win_dns_client:
+      adapter_names: Ethernet
+      ipv4_addresses: 192.168.1.121
+  - include: /etc/ansible/sincro_hora.yml
+  - include: /etc/ansible/filebeat_win.yml
+  - include: /etc/ansible/unir_dominio.yml 
+  - include: /etc/ansible/vaciar_eventos_seguridad.yml
+  - include: /etc/ansible/osquery_win.yml
+  - include: /etc/ansible/escritorio_remoto_w10.yml
+
+- hosts: LAB_SPRI_W10_2
+  vars:
+    dominio: ENPRESADIGITALA.VERSIA
+    nombre_maquina: LABSPRIW102
+    contrasena: spri
+  serial: 1
+  remote_user: versia
+  tasks:
+  - win_dns_client:
+      adapter_names: Ethernet
+      ipv4_addresses: 192.168.1.121
+  - include: /etc/ansible/sincro_hora.yml
+  - include: /etc/ansible/filebeat_win.yml
+  - include: /etc/ansible/unir_dominio.yml
+  - include: /etc/ansible/vaciar_eventos_seguridad.yml
+  - include: /etc/ansible/osquery_win.yml
+  - include: /etc/ansible/escritorio_remoto_w10.yml
+
+- hosts: LAB_SPRI_KALI
+  tasks:
+    - include: /etc/ansible/usuarios_kali.yml
+    - include: /etc/ansible/kali_osquery.yml

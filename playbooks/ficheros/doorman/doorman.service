@@ -1,0 +1,17 @@
+[Unit]
+Description=DOORMAN
+After=network.target
+Requires=postgresql.service
+Requires=redis.service
+Requires=doorman_celery.service
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+User=postgres
+WorkingDirectory=/opt/doorman
+ExecStart=/bin/sh -c '/usr/bin/python manage.py ssl >> /opt/doorman/doorman.log 2>&1'
+TimeoutSec=300
+
+[Install]
+WantedBy=default.target

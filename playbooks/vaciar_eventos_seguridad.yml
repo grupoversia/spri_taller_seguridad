@@ -1,0 +1,3 @@
+---
+    - name: Vaciar eventos seguridad
+      win_shell: wevtutil cl Security

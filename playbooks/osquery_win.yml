@@ -1,0 +1,43 @@
+---
+
+      - block:
+          - name: Instalar osquery (chocolatey)
+            win_chocolatey:
+              name: osquery
+              params: /InstallService
+              state: present  
+
+          - name: Copiar fichero de flags osquery
+            win_copy:
+              src: /etc/ansible/ficheros/osquery/osquery.flags.windows
+              dest: C:\ProgramData\osquery\osquery.flags
+
+          - name: Copiar fichero de conf osquery
+            win_copy:
+              src: /etc/ansible/ficheros/osquery/osquery.conf.windows
+              dest: C:\ProgramData\osquery\osquery.conf
+
+          - name: Copiar fichero de secret osquery
+            win_copy:
+              src: /etc/ansible/ficheros/osquery/secret.txt.windows
+              dest: C:\ProgramData\osquery\secret.txt
+
+          - name: Copiar certificado doorman
+            win_copy:
+              src: /etc/ansible/ficheros/doorman/certificate.crt
+              dest: C:\ProgramData\osquery\certs\certificate.crt
+
+          - name:
+            win_service:
+              name: wecsvc
+              state: started
+
+          - name: Reiniciar servicio osquery
+            win_service:
+              name: osqueryd
+              state: restarted
+
+          - name:
+            win_msg:
+              display_seconds: 60
+              msg: "Osquery instalado"

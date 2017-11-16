@@ -1,0 +1,16 @@
+[Unit]
+Description=Elastalert
+After=network.target
+Requires=elasticsearch.service
+Requires=kibana.service
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+User=root
+WorkingDirectory=/opt/elastalert
+ExecStart=/bin/sh -c '/usr/bin/python -m elastalert.elastalert --verbose > /var/log/elastalert.log 2>&1'
+TimeoutSec=300
+
+[Install]
+WantedBy=default.target

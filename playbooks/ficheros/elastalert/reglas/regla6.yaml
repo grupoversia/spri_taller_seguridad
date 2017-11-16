@@ -1,0 +1,31 @@
+es_host: 192.168.1.124
+es_port: 9200
+
+name: Regla - Modificacion ficheros en carpeta /etc/apt
+type: change
+realert:
+ minutes: 0
+index: osquery-*
+compare_key: columns.sha256
+ignore_null: true
+query_key: columns.path,host
+timeframe:
+  days: 10
+filter:
+- query:
+    query_string:
+      query: "name: Modificacion_ficheros_directorio_etc_apt_LINUX"
+alert:
+- "email"
+alert_subject: "Fichero {1} del equipo {2} modificado a las {0}"
+alert_subject_args:
+- "@timestamp"
+- columns.path
+- host
+smtp_host: localhost
+email_from_field: "elastalert"
+email_add_domain: "@grupoversia.com"
+email_reply_to: "elastalert@grupoversia.com"
+from_addr: "elastalert@grupoversia.com"
+email:
+- "root@localhost"
